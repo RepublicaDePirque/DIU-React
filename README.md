@@ -1,8 +1,8 @@
 # Proyecto React DIU
 
-Agustín Venegas Fellenberg - 202273xxx-x
-Bastián Jiménez Sepúlveda - 202373054-1
-Simón Sobenes Gantes - 202373098-K
+Agustín Venegas Fellenberg - 202273xxx-x | 
+Bastián Jiménez Sepúlveda - 202373054-1 | 
+Simón Sobenes Gantes - 202373098-K | 
 
 # Dependencias
 
