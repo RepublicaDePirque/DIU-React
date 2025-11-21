@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Clock } from "lucide-react"; // Agregué el icono Clock para mejor UI
 import { toast } from "sonner";
 
 const CreateWorkshop = () => {
@@ -19,28 +19,27 @@ const CreateWorkshop = () => {
     maxSlots: "",
   });
 
-  const formatTime = (time: string) => {
-    if (!time) return "";
-    const [hours, minutes] = time.split(":");
-    return `${hours}:${minutes}`;
-  };
+  // 1. Generamos una lista de horarios (De 08:00 a 21:00 cada 30 mins)
+  const timeSlots = Array.from({ length: 27 }, (_, i) => {
+    const hour = Math.floor(i / 2) + 8; // Empieza a las 8 AM
+    const minute = i % 2 === 0 ? "00" : "30";
+    return `${hour.toString().padStart(2, "0")}:${minute}`;
+  });
 
+  // Ya no necesitas la función formatTime porque el Select entrega el string limpio
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Format schedule for display
-    const formattedTime = formatTime(formData.time);
-    const schedule = formData.day && formattedTime 
-      ? `${formData.day} - ${formattedTime} hrs`
+    const schedule = formData.day && formData.time 
+      ? `${formData.day} - ${formData.time} hrs`
       : "";
     
-    // Show success message
     toast.success("¡Taller creado exitosamente!", {
-      description: `${formData.name} ha sido publicado y está disponible para inscripciones. Horario: ${schedule}`,
+      description: `${formData.name} ha sido publicado. Horario: ${schedule}`,
       duration: 3000,
     });
 
-    // Navigate back to dashboard
     setTimeout(() => {
       navigate("/professor/dashboard");
     }, 1500);
@@ -56,7 +55,6 @@ const CreateWorkshop = () => {
 
   return (
     <div className="min-h-screen bg-muted/30">
-      {/* Header */}
       <header className="bg-card border-b shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
@@ -71,7 +69,6 @@ const CreateWorkshop = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
           <Card className="shadow-lg">
@@ -96,7 +93,7 @@ const CreateWorkshop = () => {
                   <Label htmlFor="description">Descripción *</Label>
                   <Textarea
                     id="description"
-                    placeholder="Describe lo que los estudiantes aprenderán en este taller..."
+                    placeholder="Describe lo que los estudiantes aprenderán..."
                     value={formData.description}
                     onChange={(e) => handleChange("description", e.target.value)}
                     required
@@ -118,24 +115,33 @@ const CreateWorkshop = () => {
                         <SelectItem value="Jueves">Jueves</SelectItem>
                         <SelectItem value="Viernes">Viernes</SelectItem>
                         <SelectItem value="Sábado">Sábado</SelectItem>
-                        <SelectItem value="Domingo">Domingo</SelectItem>
-                        <SelectItem value="Lunes y Miércoles">Lunes y Miércoles</SelectItem>
-                        <SelectItem value="Martes y Jueves">Martes y Jueves</SelectItem>
-                        <SelectItem value="Miércoles y Viernes">Miércoles y Viernes</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
+                  {/* 2. Aquí reemplazamos el Input por el Select de horarios */}
                   <div className="space-y-2">
-                    <Label htmlFor="time">Hora *</Label>
-                    <Input
-                      id="time"
-                      type="time"
-                      value={formData.time}
-                      onChange={(e) => handleChange("time", e.target.value)}
+                    <Label htmlFor="time">Hora de Inicio *</Label>
+                    <Select 
+                      value={formData.time} 
+                      onValueChange={(value) => handleChange("time", value)} 
                       required
-                    />
-                    <p className="text-sm text-muted-foreground">Selecciona la hora de inicio del taller</p>
+                    >
+                      <SelectTrigger id="time" className="w-full">
+                        <div className="flex items-center">
+                            <Clock className="w-4 h-4 mr-2 text-muted-foreground"/>
+                            <SelectValue placeholder="--:--" />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[200px]"> {/* Limitamos altura para scroll */}
+                        {timeSlots.map((time) => (
+                          <SelectItem key={time} value={time}>
+                            {time} hrs
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-sm text-muted-foreground">Horario de comienzo del bloque.</p>
                   </div>
                 </div>
 
@@ -146,12 +152,10 @@ const CreateWorkshop = () => {
                     type="number"
                     min="1"
                     max="50"
-                    placeholder="ej. 18"
                     value={formData.maxSlots}
                     onChange={(e) => handleChange("maxSlots", e.target.value)}
                     required
                   />
-                  <p className="text-sm text-muted-foreground">Número máximo de estudiantes que pueden inscribirse</p>
                 </div>
               </CardContent>
 
